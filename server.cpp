@@ -5,58 +5,39 @@
  */
 
 
-#include <iostream>
-#include <boost/asio.hpp>
+#include "server.hpp"
 #include "msg.hpp"
-
-using boost::asio::ip::tcp;
 
 #define PORT 31984
 
-int snark=0;
-void handleConnection(tcp::socket& socket){
-    msg m;
-    boost::system::error_code error;
-    
-    for(;;){
-        boost::asio::read(socket,boost::asio::buffer(&m,sizeof(m)),
-                          boost::asio::transfer_all(),error);
-        if(error){
-            // an error occurred
-            if(error == boost::asio::error::eof){
-                // this is fine; the client closed the connection.
-                std::cerr << "Client closed connection." << std::endl;
-            } else {
-                // or something else.
-                std::cerr << "error in read " << error.message() << std::endl;
+class Server : public abertcp::Server {
+    int test;
+public:
+    Server() : abertcp::Server(PORT) {
+        test=0;
+    }
+    virtual void handleConnection (){
+        msg m;
+        for(;;){
+            if(read(&m,sizeof(m)))
+                break;
+            else {
+                if(test++==2)
+                    sleep(6);
+                std::cout << m.buf << std::endl;
+                strcpy(m.buf,"Blah");
+                send(&m,sizeof(m));
             }
-            // either case we just stop.
-            return;
-        } else {
-            std::cerr << "Read a message: " << m.buf << std::endl;
-            // all is well, send something 
-            msg sm;
-            sprintf(sm.buf,"Read: %s",m.buf);
-            if(snark++==2)
-                sleep(6);
-            socket.send(boost::asio::buffer(&m,sizeof(m)));
         }
     }
-}
+};
+
 
 int main(int argc,char *argv[]){
     try {
-        boost::asio::io_service io;
-        tcp::endpoint endpoint(tcp::v4(),PORT);
-        tcp::acceptor acceptor(io,endpoint);
-    
-        for(;;){
-            std::cerr << "Waiting... " << std::endl;
-            tcp::socket socket(io);
-            acceptor.accept(socket);
-            handleConnection(socket);
-            
-        }
+        Server server;
+        server.loop();
+        
     } catch (std::exception &e){
         std::cerr << e.what() << std::endl;
     }
