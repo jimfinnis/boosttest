@@ -7,7 +7,7 @@
 #ifndef __MSG_H
 #define __MSG_H
 
-#define MSGSIZE (640*480*2)
+#define MSGSIZE (640*480*2*3)
 
 struct request {
     int n;
