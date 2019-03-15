@@ -19,7 +19,7 @@ class Client {
     request req;
     response res;
 public:
-    Client() : client("localhost",PORT) {}
+    Client() : client("cranberry",PORT) {}
     
     bool get(){
         req.n = 0;
@@ -41,7 +41,7 @@ int main(int argc,char *argv[]){
     try {
         Client client;
         
-        for(int i=0;i<10;i++){
+        for(int i=0;i<1000;i++){
             if(!client.get())break;
         }
     } catch (std::exception &e){
