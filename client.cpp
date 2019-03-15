@@ -14,24 +14,35 @@ using boost::asio::ip::tcp;
 
 #define PORT 31984
 
+class Client {
+    abertcp::Client client;
+    request req;
+    response res;
+public:
+    Client() : client("localhost",PORT) {}
+    
+    bool get(){
+        req.n = 0;
+        client.send(&req,sizeof(req));
+        boost::system::error_code error;
+        error = client.read(&res,sizeof(res),5);
+        if(error){
+            std::cerr << "Error: " << error.message() << std::endl;
+            return false;
+        }
+        std::cout << "Read a response." << std::endl;
+        return true;
+    }
+};
+        
+    
+
 int main(int argc,char *argv[]){
     try {
-        abertcp::Client client(PORT);
+        Client client;
         
         for(int i=0;i<10;i++){
-            // send data
-            msg m;
-            strcpy(m.buf,"Hello world");
-            client.send(&m,sizeof(m));
-        
-            // await response
-            boost::system::error_code error;
-            error = client.read(&m,sizeof(m),5);
-            if(error){
-                std::cerr << "Error: " << error.message() << std::endl;
-                break;
-            }
-            std::cout << "Read a response: " << m.buf << std::endl;
+            if(!client.get())break;
         }
     } catch (std::exception &e){
         std::cerr << e.what() << std::endl;

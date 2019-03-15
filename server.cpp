@@ -11,22 +11,19 @@
 #define PORT 31984
 
 class Server : public abertcp::Server {
-    int test;
+    response res;
 public:
-    Server() : abertcp::Server(PORT) {
-        test=0;
-    }
+    Server() : abertcp::Server(PORT) {}
+    
     virtual void handleConnection (){
-        msg m;
+        request req;
         for(;;){
-            if(read(&m,sizeof(m)))
+            if(read(&req,sizeof(req)))
                 break;
             else {
-                if(test++==2)
-                    sleep(6);
-                std::cout << m.buf << std::endl;
-                strcpy(m.buf,"Blah");
-                send(&m,sizeof(m));
+                std::cout << "Sending" << std::endl;
+                memset(&res.b,0,sizeof(res.b));
+                send(&res,sizeof(res));
             }
         }
     }

@@ -7,8 +7,15 @@
 #ifndef __MSG_H
 #define __MSG_H
 
-struct msg {
-    char buf[256];
+#define MSGSIZE (640*480*2)
+
+struct request {
+    int n;
+};
+
+struct response {
+    // MASSIVE
+    char b[MSGSIZE];
 };
 
 #endif /* __MSG_H */

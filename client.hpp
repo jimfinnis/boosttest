@@ -50,8 +50,9 @@ boost::system::error_code readTimeout(SyncReadStream& s,
         if (read_result)
             timer.cancel();
         else if (timer_result){
-            error = boost::system::errc::make_error_code(boost::system::errc::timed_out);
             s.cancel();
+            error = boost::system::errc::make_error_code(boost::system::errc::timed_out);
+            return error;
         }
     }
 
@@ -69,10 +70,10 @@ private:
     
 public:
     
-    Client(int port) : socket_(io_){
+    Client(const char *hostname,int port) : socket_(io_){
         tcp::resolver resolver(io_);
         auto endpoint_iterator = resolver.resolve
-              (tcp::resolver::query("localhost",std::to_string(port)));
+              (tcp::resolver::query(hostname,std::to_string(port)));
         boost::asio::connect(socket_,endpoint_iterator);
     }
     
